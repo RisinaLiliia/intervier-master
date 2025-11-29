@@ -1,4 +1,4 @@
-export interface CategoryQuestionItem {
+export interface QuestionItem {
   position: number;
   question: string;
   actions: string[];
@@ -7,7 +7,7 @@ export interface CategoryQuestionItem {
 
 }
 
-export const MOCK_DATA: CategoryQuestionItem[] = [
+export const MOCK_DATA: QuestionItem [] = [
   {position: 1, question: 'Can you explain what a component was in Angular?', actions: []},
   {position: 2, question: 'How do you bind data in Angular?', actions: []},
   {position: 3, question: 'Can you explain the lifecycle hooks in Angular?', actions: []},
