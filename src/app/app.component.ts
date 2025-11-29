@@ -8,6 +8,9 @@ import { GenerateAnswerModalComponent } from './components/generate-answer-modal
 import { PreparationComponent } from './components/preparation/preparation.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { UserPanelComponent } from './components/user-panel/user-panel.component';
+
 
 @Component({
   selector: 'app-root',
@@ -21,6 +24,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     GenerateAnswerModalComponent,
     LeftSideMenuComponent,
     PreparationComponent,
+    PageNotFoundComponent,
+    UserPanelComponent,
     TopMenuComponent,
   ],
   templateUrl: './app.component.html',

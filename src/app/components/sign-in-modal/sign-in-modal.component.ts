@@ -35,7 +35,6 @@ export class SignInModalComponent {
       const { login, password } = this.signInForm.value;
       console.log('Login:', login);
       console.log('Password:', password);
-      // TODO - Call the service
       this.dialogRef.close(this.signInForm.value);
     }
   }
