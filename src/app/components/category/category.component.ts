@@ -5,18 +5,20 @@ import { QuestionItem, MOCK_DATA } from './category.component.config';
 import { MatDialog } from '@angular/material/dialog';
 import { GenerateAnswerModalComponent } from '../generate-answer-modal/generate-answer-modal.component';
 import { DeleteConfirmationModalComponent } from '../delete-confirmation-modal/delete-confirmation-modal.component';
+import { TruncatePipe } from '../../pipes/truncate.pipe';
+
 
 @Component({
   selector: 'app-category',
   standalone: true,
-  imports: [MatTableModule, MatButtonModule],
+  imports: [MatTableModule, MatButtonModule, TruncatePipe],
   templateUrl: './category.component.html',
   styleUrl: './category.component.scss',
 })
 export class CategoryComponent {
-  displayedColumns: string[] = ['position', 'question', 'actions'];
-  dataSource = new MatTableDataSource<QuestionItem >(MOCK_DATA);
-
+  displayedColumns: string[] = ['position', 'question', 'answer', 'actions'];
+  dataSource = new MatTableDataSource<QuestionItem>(MOCK_DATA);
+  
   constructor(public dialog: MatDialog) {}
 
   openGenerateDialog(question: QuestionItem ): void {
