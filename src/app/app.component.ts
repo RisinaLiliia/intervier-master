@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { TopMenuComponent } from './components/top-menu/top-menu.component';
 import { LeftSideMenuComponent } from './components/left-side-menu/left-side-menu.component';
 import { CategoryComponent } from './components/category/category.component';
@@ -11,12 +11,11 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { UserPanelComponent } from './components/user-panel/user-panel.component';
 
-
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterModule,
+    RouterOutlet,
     MatSidenavModule,
     MatToolbarModule,
     CategoryComponent,
@@ -24,13 +23,12 @@ import { UserPanelComponent } from './components/user-panel/user-panel.component
     GenerateAnswerModalComponent,
     LeftSideMenuComponent,
     PreparationComponent,
+    TopMenuComponent,
     PageNotFoundComponent,
     UserPanelComponent,
-    TopMenuComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-    title = 'my-angular-app';
 }

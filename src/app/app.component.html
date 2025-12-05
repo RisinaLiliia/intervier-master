@@ -8,15 +8,15 @@
 
   <mat-sidenav-content>
     <mat-toolbar color="primary">
-     <div class="toolbar-content">
+      <div class="toolbar-content">
         <a mat-list-item>Interview preparation</a>
         <span class="spacer"></span>
         <app-user-panel></app-user-panel>
-      </div>    
+      </div>
     </mat-toolbar>
     <app-top-menu></app-top-menu>
     <main>
-      <app-preparation></app-preparation>
+      <router-outlet></router-outlet>
     </main>
   </mat-sidenav-content>
 </mat-sidenav-container>
