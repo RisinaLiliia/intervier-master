@@ -3,7 +3,6 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { QuestionItem, MOCK_DATA } from './category.component.config';
 import { MatDialog } from '@angular/material/dialog';
-import { GenerateAnswerModalComponent } from '../generate-answer-modal/generate-answer-modal.component';
 import { DeleteConfirmationModalComponent } from '../delete-confirmation-modal/delete-confirmation-modal.component';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
@@ -19,7 +18,7 @@ import { TruncatePipe } from '../../pipes/truncate.pipe';
   styleUrl: './category.component.scss',
 })
 export class CategoryComponent implements OnInit, OnDestroy {
-  displayedColumns: string[] = ['position', 'question', 'actions'];
+  displayedColumns: string[] = ['position', 'question', 'answer', 'actions'];
   dataSource = new MatTableDataSource<QuestionItem>();
 
   private destroy$ = new Subject<void>();
@@ -40,21 +39,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  openGenerateDialog(question: QuestionItem): void {
-    const dialogRef = this.dialog.open(GenerateAnswerModalComponent, {
-      width: '500px',
-      data: {
-        question: question.question,
-        answer: question.answer,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((result: string) => {
-      console.log('The dialog was closed', result);
-      if (result) {
-      }
-    });
-  }
+  
 
   openDeleteDialog(question: QuestionItem): void {
     const dialogRef = this.dialog.open(DeleteConfirmationModalComponent, {
