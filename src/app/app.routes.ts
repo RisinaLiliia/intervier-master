@@ -6,14 +6,13 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
 
 export const routes: Routes = [
   { path: 'categories/:categoryId', component: CategoryComponent },
-  { path: 'preparation/:categoryId', component: PreparationComponent },
+  { path: 'preparation', component: PreparationComponent },
   { path: '', redirectTo: '/categories/angular', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent },
-  { path: '', redirectTo: '/categories/angular', pathMatch: 'full' }
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
