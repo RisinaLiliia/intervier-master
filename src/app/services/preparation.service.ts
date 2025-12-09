@@ -1,22 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, delay, map, of } from 'rxjs';
-import {
-  MOCK_DATA,
-  QuestionItem,
-} from '../components/category/category.component.config';
+import { MOCK_DATA, QuestionItem } from '../components/category/category.component.config';
 import { Response, ResponseArray } from '../models/response.models';
 import { get } from 'lodash';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CategoriesService {
+export class PreparationService {
   public baseUrl = 'http://localhost:4200';
 
   constructor(private http: HttpClient) {}
 
-  getQuestionsByCategory(
+  getPreparationQuestionsByCategory(
     categoryName: string
   ): Observable<ResponseArray<QuestionItem>> {
     return of(get(MOCK_DATA, categoryName)).pipe(
@@ -27,26 +24,7 @@ export class CategoriesService {
     );
   }
 
-  updateCategoryQuestionById(
-    categoryName: string,
-    question: Partial<QuestionItem>,
-    id: number
-  ): Observable<Response<QuestionItem>> {
-    return of(
-      get(MOCK_DATA, categoryName).filter(
-        (question: QuestionItem) => question.id === id
-      )
-    ).pipe(
-      map((q) => {
-        return {
-          data: { ...q[0], ...question },
-        };
-      }),
-      delay(500)
-    );
-  }
-
-  deleteCategoryQuestionById(
+  deletePreparationQuestionById(
     categoryName: string,
     id: number
   ): Observable<Response<QuestionItem>> {
