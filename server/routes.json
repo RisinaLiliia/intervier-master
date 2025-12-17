@@ -1,5 +1,6 @@
 {
-  "/category/:name": "/categories?name=:name&_embed=questions",
-  "/preparation/:name": "/categories?name=:name&_embed=questions",
-  "questions": "/664/users$1"
+  "users": 600,
+  "categories": 644,
+  "questions": 644
 }
+
