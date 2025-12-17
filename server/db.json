@@ -6,6 +6,18 @@
       "firstName": "Test",
       "lastName": "Art",
       "id": 1
+    },
+    {
+      "email": "risina@gmail.com",
+      "password": "$2a$10$XXrweOauNg0m3Pr7pa9gl.6/NIIB3eNBf5IephaEBRLt3pHrOBH7S",
+      "id": 2
+    },
+    {
+      "email": "werk@gmail.com",
+      "password": "$2a$10$kciOb6imjQBesmdptZnFru6oR.WOIkIztcgSYpInbHtIk552buRXm",
+      "id": 3,
+      "firstName": "Werk",
+      "lastName": "Werk"
     }
   ],
   "categories": [

@@ -9,7 +9,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
-import { SignUpService } from '../../services/sign-up.servic.service';
+import { SignUpService } from '../../services/sign-up.service';
 
 @Component({
   selector: 'app-sign-up-modal',
@@ -30,11 +30,10 @@ export class SignUpModalComponent {
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<SignUpModalComponent>,
     public signUpService: SignUpService,
-   ) {
+  ) {
     this.signUpForm = this.fb.group({
-      login: ['', Validators.required],
-      password: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
     });
@@ -42,8 +41,8 @@ export class SignUpModalComponent {
 
   onSubmit() {
     if (this.signUpForm.valid) {
-          const { login, password, email, firstName, lastName } = this.signUpForm.value;
-      this.signUpService.register(login, password, email, firstName, lastName).subscribe(() => {
+      const { email, password, firstName, lastName } = this.signUpForm.value;
+      this.signUpService.register(email, password, firstName, lastName).subscribe(() => {
         this.dialogRef.close(this.signUpForm.value);
       });
     }
@@ -51,10 +50,6 @@ export class SignUpModalComponent {
 
   onCancel(): void {
     this.dialogRef.close();
-  }
-
-  get login() {
-    return this.signUpForm.get('login');
   }
 
   get password() {
