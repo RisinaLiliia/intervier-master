@@ -46,10 +46,7 @@ export class CategoriesService {
     );
   }
 
-  deleteCategoryQuestionById(
-    categoryName: string,
-    id: number
-  ): Observable<Response<QuestionItem>> {
-    return of();
-  }
+ deleteCategoryQuestionById(categoryName: string, id: number) {
+  return this.http.delete<Response<QuestionItem>>(`http://localhost:3000/questions/${id}`);
+}
 }

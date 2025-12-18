@@ -15,7 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   standalone: true,
   imports: [MatTableModule, MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './category.component.html',
-  styleUrl: './category.component.scss',
+  styleUrls: ['./category.component.scss'], 
 })
 export class CategoryComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['position', 'question', 'actions'];
@@ -43,7 +43,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
       )
       .subscribe((response) => {
         this.isLoading = false;
-        this.dataSource = response.data as any;
+        this.dataSource.data = response.data as QuestionItem[];
       });
   }
 
@@ -64,11 +64,19 @@ export class CategoryComponent implements OnInit, OnDestroy {
       });
   }
 
-  deleteAnswer(categoryName: string, id: number): void {
+  deleteAnswer(categoryName: string, question: QuestionItem): void {
     this.categoriesService
-      .deleteCategoryQuestionById(categoryName, id)
-      .subscribe((response) => {
-        console.log(response);
+      .deleteCategoryQuestionById(categoryName, question.id)
+      .subscribe({
+        next: () => {
+          this.dataSource.data = this.dataSource.data.filter(
+            (q) => q.id !== question.id
+          );
+          console.log('Question deleted:', question);
+        },
+        error: (err) => {
+          console.error('Error deleting question:', err);
+        },
       });
   }
 
@@ -82,7 +90,6 @@ export class CategoryComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe((result: string) => {
-      console.log('The dialog was closed', result);
       if (result) {
         this.updateAnswer(this.category, { answer: result }, question.id);
       }
@@ -95,10 +102,8 @@ export class CategoryComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe((result: boolean) => {
-      console.log('The dialog was closed', result);
       if (result) {
-        console.log('Question would be deleted.', question);
-        this.deleteAnswer(this.category, question.id);
+        this.deleteAnswer(this.category, question);
       }
     });
   }

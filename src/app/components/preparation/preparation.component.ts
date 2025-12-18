@@ -2,48 +2,62 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute } from '@angular/router';
+import { Subject, switchMap, takeUntil, tap } from 'rxjs';
+
 import { DeleteConfirmationModalComponent } from '../delete-confirmation-modal/delete-confirmation-modal.component';
 import { QuestionItem } from '../category/category.component.config';
 import { TruncatePipe } from '../../pipes/truncate.pipe';
-import { ActivatedRoute } from '@angular/router';
-import { Subject, switchMap, takeUntil } from 'rxjs';
 import { PreparationService } from '../../services/preparation.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-preparation',
   standalone: true,
-  imports: [MatTableModule, MatButtonModule, TruncatePipe, MatProgressSpinnerModule],
+  imports: [
+    MatTableModule,
+    MatButtonModule,
+    TruncatePipe,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './preparation.component.html',
   styleUrl: './preparation.component.scss',
 })
 export class PreparationComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['position', 'question', 'answer', 'actions'];
-  dataSource = new MatTableDataSource<QuestionItem>();
-  category: string = '';
+
+  dataSource = new MatTableDataSource<QuestionItem>([]);
+  category = '';
   isLoading = false;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
-    public dialog: MatDialog,
-    public preparationService: PreparationService,
-    private route: ActivatedRoute,
+    private readonly dialog: MatDialog,
+    private readonly preparationService: PreparationService,
+    private readonly route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.route.queryParams
       .pipe(
         takeUntil(this.destroy$),
-        switchMap((queryParams) => {
-          this.category = queryParams['tabName'] || '';
-          this.isLoading = true;
-          return this.preparationService.getPreparationQuestionsByCategory(this.category);
+        tap(() => (this.isLoading = true)),
+        switchMap((params) => {
+          this.category = params['tabName'] ?? '';
+          return this.preparationService.getPreparationQuestionsByCategory(
+            this.category
+          );
         })
       )
-      .subscribe((response) => {
-        this.isLoading = false;
-        this.dataSource = response.data as any;
+      .subscribe({
+        next: (response) => {
+          this.dataSource.data = response.data;
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+        },
       });
   }
 
@@ -57,21 +71,24 @@ export class PreparationComponent implements OnInit, OnDestroy {
       width: '333px',
     });
 
-    dialogRef.afterClosed().subscribe((result: boolean) => {
-      console.log('The dialog was closed', result);
-      if (result) {
-        console.log('Question would be deleted.', question);
-        this.deleteAnswer(this.category, question.id);
-      }
-    });
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((confirmed: boolean) => {
+        if (confirmed) {
+          this.deleteAnswer(question.id);
+        }
+      });
   }
 
-  deleteAnswer(
-    categoryName: string,
-    id: number
-  ): void {
+  deleteAnswer(id: number): void {
     this.preparationService
-      .deletePreparationQuestionById(categoryName, id)
-      .subscribe((response) => console.log(response));
+      .deletePreparationQuestionById(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.dataSource.data = this.dataSource.data.filter(
+          (question) => question.id !== id
+        );
+      });
   }
 }
