@@ -1,52 +1,41 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, delay, map, of } from 'rxjs';
-import {
-  MOCK_DATA,
-  QuestionItem,
-} from '../components/category/category.component.config';
-import { Response, ResponseArray } from '../models/response.models';
-import { get } from 'lodash';
+import { HttpClient } from '@angular/common/http';
+import { forkJoin, map, Observable, switchMap } from 'rxjs';
+import { CategoryItem, QuestionItem, ResponseArray } from '../models/question.model';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class CategoriesService {
-  public baseUrl = 'http://localhost:4200';
+  private apiUrl = 'http://localhost:3000';
 
   constructor(private http: HttpClient) {}
 
-  getQuestionsByCategory(
-    categoryName: string
-  ): Observable<ResponseArray<QuestionItem>> {
-    return of(get(MOCK_DATA, categoryName)).pipe(
-      map((questions) => ({
-        data: [...questions],
-      })),
-      delay(500)
+  private getCategoryByName(name: string): Observable<CategoryItem> {
+    return this.http
+      .get<CategoryItem[]>(`${this.apiUrl}/categories?name=${name}`)
+      .pipe(map((categories) => categories[0]));
+  }
+
+  getQuestionsByCategory(categoryName: string): Observable<ResponseArray<QuestionItem>> {
+    return this.getCategoryByName(categoryName).pipe(
+      switchMap((category) =>
+        this.http.get<QuestionItem[]>(
+          `${this.apiUrl}/questions?categoryId=${category.id}`
+        )
+      ),
+      map((questions) => ({ data: questions }))
     );
+  }
+
+  deleteCategoryQuestionById(categoryName: string, questionId: number) {
+    return this.http.delete(`${this.apiUrl}/questions/${questionId}`);
   }
 
   updateCategoryQuestionById(
     categoryName: string,
-    question: Partial<QuestionItem>,
-    id: number
-  ): Observable<Response<QuestionItem>> {
-    return of(
-      get(MOCK_DATA, categoryName).filter(
-        (question: QuestionItem) => question.id === id
-      )
-    ).pipe(
-      map((q) => {
-        return {
-          data: { ...q[0], ...question },
-        };
-      }),
-      delay(500)
-    );
+    payload: Partial<QuestionItem>,
+    questionId: number
+  ) {
+    return this.http.patch(`${this.apiUrl}/questions/${questionId}`, payload);
   }
+}
 
- deleteCategoryQuestionById(categoryName: string, id: number) {
-  return this.http.delete<Response<QuestionItem>>(`http://localhost:3000/questions/${id}`);
-}
-}

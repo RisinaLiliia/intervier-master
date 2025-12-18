@@ -6,10 +6,11 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject, switchMap, takeUntil, tap } from 'rxjs';
 
 import { DeleteConfirmationModalComponent } from '../delete-confirmation-modal/delete-confirmation-modal.component';
-import { QuestionItem } from '../category/category.component.config';
+import { QuestionItem } from '../../models/question.model';
 import { TruncatePipe } from '../../pipes/truncate.pipe';
 import { PreparationService } from '../../services/preparation.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ResponseArray } from '../../models/response.models';
 
 @Component({
   selector: 'app-preparation',
@@ -21,7 +22,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatProgressSpinnerModule,
   ],
   templateUrl: './preparation.component.html',
-  styleUrl: './preparation.component.scss',
+  styleUrls: ['./preparation.component.scss'],
 })
 export class PreparationComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['position', 'question', 'answer', 'actions'];
@@ -51,9 +52,11 @@ export class PreparationComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        next: (response) => {
-          this.dataSource.data = response.data;
+        next: (response: ResponseArray<QuestionItem>) => {
+          // Используем response.data вместо response[this.category]
+          this.dataSource.data = response.data || [];
           this.isLoading = false;
+          console.log('Loaded questions:', this.dataSource.data);
         },
         error: () => {
           this.isLoading = false;
@@ -92,3 +95,5 @@ export class PreparationComponent implements OnInit, OnDestroy {
       });
   }
 }
+
+

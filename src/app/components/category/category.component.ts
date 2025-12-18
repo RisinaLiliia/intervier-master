@@ -1,21 +1,21 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
-import { QuestionItem } from './category.component.config';
+import { QuestionItem } from '../../models/question.model';
 import { MatDialog } from '@angular/material/dialog';
 import { GenerateAnswerModalComponent } from '../generate-answer-modal/generate-answer-modal.component';
 import { DeleteConfirmationModalComponent } from '../delete-confirmation-modal/delete-confirmation-modal.component';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, switchMap, takeUntil } from 'rxjs';
-import { CategoriesService } from '../../services/categories.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CategoriesService } from '../../services/categories.service';
 
 @Component({
   selector: 'app-category',
   standalone: true,
   imports: [MatTableModule, MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './category.component.html',
-  styleUrls: ['./category.component.scss'], 
+  styleUrls: ['./category.component.scss'],
 })
 export class CategoryComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['position', 'question', 'actions'];
@@ -27,7 +27,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
   constructor(
     public dialog: MatDialog,
-    public categoriesService: CategoriesService,
+    private categoriesService: CategoriesService,
     private route: ActivatedRoute
   ) {}
 
@@ -41,9 +41,15 @@ export class CategoryComponent implements OnInit, OnDestroy {
           return this.categoriesService.getQuestionsByCategory(this.category);
         })
       )
-      .subscribe((response) => {
-        this.isLoading = false;
-        this.dataSource.data = response.data as QuestionItem[];
+      .subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          this.dataSource.data = response.data;
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error('Error loading questions:', err);
+        },
       });
   }
 
@@ -52,31 +58,30 @@ export class CategoryComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  updateAnswer(
-    categoryName: string,
-    question: Partial<QuestionItem>,
-    id: number
-  ): void {
+  updateAnswer(questionId: number, answer: string) {
     this.categoriesService
-      .updateCategoryQuestionById(categoryName, question, id)
-      .subscribe((response) => {
-        console.log(response);
+      .updateCategoryQuestionById(this.category, { answer }, questionId)
+      .subscribe({
+        next: (updated) => {
+          const index = this.dataSource.data.findIndex((q) => q.id === questionId);
+          if (index > -1) {
+            this.dataSource.data[index].answer = answer;
+          }
+          console.log('Answer updated:', updated);
+        },
+        error: (err) => console.error('Error updating answer:', err),
       });
   }
 
-  deleteAnswer(categoryName: string, question: QuestionItem): void {
+  deleteAnswer(question: QuestionItem) {
     this.categoriesService
-      .deleteCategoryQuestionById(categoryName, question.id)
+      .deleteCategoryQuestionById(this.category, question.id)
       .subscribe({
         next: () => {
-          this.dataSource.data = this.dataSource.data.filter(
-            (q) => q.id !== question.id
-          );
+          this.dataSource.data = this.dataSource.data.filter((q) => q.id !== question.id);
           console.log('Question deleted:', question);
         },
-        error: (err) => {
-          console.error('Error deleting question:', err);
-        },
+        error: (err) => console.error('Error deleting question:', err),
       });
   }
 
@@ -91,7 +96,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result: string) => {
       if (result) {
-        this.updateAnswer(this.category, { answer: result }, question.id);
+        this.updateAnswer(question.id, result);
       }
     });
   }
@@ -103,7 +108,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
-        this.deleteAnswer(this.category, question);
+        this.deleteAnswer(question);
       }
     });
   }
