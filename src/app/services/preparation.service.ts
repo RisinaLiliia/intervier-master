@@ -5,29 +5,21 @@ import { MOCK_DATA, QuestionItem } from '../components/category/category.compone
 import { Response, ResponseArray } from '../models/response.models';
 import { get } from 'lodash';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class PreparationService {
-  public baseUrl = 'http://localhost:4200';
+  private baseUrl = 'http://localhost:3000';
 
   constructor(private http: HttpClient) {}
 
-  getPreparationQuestionsByCategory(
-    categoryName: string
-  ): Observable<ResponseArray<QuestionItem>> {
-    return of(get(MOCK_DATA, categoryName)).pipe(
-      map((questions) => ({
-        data: [...questions],
-      })),
-      delay(500)
+  getPreparationQuestionsByCategory(category: string) {
+    return this.http.get<ResponseArray<QuestionItem>>(
+      `${this.baseUrl}/questions?category=${category}`
     );
   }
 
-  deletePreparationQuestionById(
-    categoryName: string,
-    id: number
-  ): Observable<Response<QuestionItem>> {
-    return of();
+  deletePreparationQuestionById(id: number) {
+    return this.http.delete(
+      `${this.baseUrl}/questions/${id}`
+    );
   }
 }
