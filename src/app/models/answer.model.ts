@@ -11,3 +11,9 @@ export interface QuestionWithAnswer {
   question: string;
   answer?: string;
 }
+
+export interface EditAnswerDialogData {
+  id: number;
+  question: string;
+  answer?: string;
+}

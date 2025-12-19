@@ -16,25 +16,32 @@ export class SignUpService {
   ) {}
 
   register(email: string, password: string, firstName: string, lastName: string) {
-  return this.http
-    .post<{ accessToken: string; user: any }>(this.apiUrl, { email, password })
-    .pipe(
-      switchMap(res => {
-        const userId = res.user.id;
-        const token = res.accessToken;
+    return this.http
+      .post<{ accessToken: string; user: any }>(this.apiUrl, { email, password })
+      .pipe(
+        switchMap(res => {
+          const userId = res.user.id;
+          const token = res.accessToken;
 
-        return this.http.patch(
-          `http://localhost:3000/users/${userId}`,
-          { firstName, lastName },
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        ).pipe(
-          tap(() => this.storageService.setToken(token))
-        );
-      })
-    );
+          // Сохраняем имя/фамилию
+          return this.http.patch(
+            `http://localhost:3000/users/${userId}`,
+            { firstName, lastName },
+            { headers: { Authorization: `Bearer ${token}` } }
+          ).pipe(
+            switchMap(() => {
+              // Инициализация вопросов пользователя через кастомный endpoint
+              return this.http.post(
+                `http://localhost:3000/initUserQuestions`,
+                {}, // тело можно оставить пустым
+                { headers: { Authorization: `Bearer ${token}` } }
+              );
+            }),
+            tap(() => this.storageService.setToken(token))
+          );
+        })
+      );
+  }
 }
 
-}
 

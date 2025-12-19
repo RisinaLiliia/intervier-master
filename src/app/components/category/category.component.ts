@@ -3,7 +3,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { QuestionItem } from '../../models/question.model';
 import { MatDialog } from '@angular/material/dialog';
-import { GenerateAnswerModalComponent } from '../generate-answer-modal/generate-answer-modal.component';
+import { EditAnswerModalComponent } from '../edit-answer-modal/edit-answer-modal.component';
 import { DeleteConfirmationModalComponent } from '../delete-confirmation-modal/delete-confirmation-modal.component';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, switchMap, takeUntil } from 'rxjs';
@@ -86,7 +86,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
   }
 
   openGenerateDialog(question: QuestionItem): void {
-    const dialogRef = this.dialog.open(GenerateAnswerModalComponent, {
+    const dialogRef = this.dialog.open(EditAnswerModalComponent, {
       width: '500px',
       data: {
         question: question.question,

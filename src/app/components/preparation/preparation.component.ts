@@ -4,13 +4,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, switchMap, takeUntil, tap } from 'rxjs';
-
-import { DeleteConfirmationModalComponent } from '../delete-confirmation-modal/delete-confirmation-modal.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { EditAnswerModalComponent } from '../edit-answer-modal/edit-answer-modal.component';
 import { QuestionItem } from '../../models/question.model';
 import { TruncatePipe } from '../../pipes/truncate.pipe';
 import { PreparationService } from '../../services/preparation.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ResponseArray } from '../../models/response.models';
 
 @Component({
   selector: 'app-preparation',
@@ -20,13 +19,13 @@ import { ResponseArray } from '../../models/response.models';
     MatButtonModule,
     TruncatePipe,
     MatProgressSpinnerModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './preparation.component.html',
   styleUrls: ['./preparation.component.scss'],
 })
 export class PreparationComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['position', 'question', 'answer', 'actions'];
-
   dataSource = new MatTableDataSource<QuestionItem>([]);
   category = '';
   isLoading = false;
@@ -52,13 +51,12 @@ export class PreparationComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe({
-        next: (response: ResponseArray<QuestionItem>) => {
-          // Используем response.data вместо response[this.category]
-          this.dataSource.data = response.data || [];
+        next: (questions: QuestionItem[]) => {
+          this.dataSource.data = questions;
           this.isLoading = false;
-          console.log('Loaded questions:', this.dataSource.data);
         },
-        error: () => {
+        error: (err) => {
+          console.error('Error loading preparation questions', err);
           this.isLoading = false;
         },
       });
@@ -69,31 +67,10 @@ export class PreparationComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  openDeleteDialog(question: QuestionItem): void {
-    const dialogRef = this.dialog.open(DeleteConfirmationModalComponent, {
-      width: '333px',
+  openEditDialog(question: QuestionItem): void {
+    this.dialog.open(EditAnswerModalComponent, {
+      width: '600px',
+      data: question,
     });
-
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((confirmed: boolean) => {
-        if (confirmed) {
-          this.deleteAnswer(question.id);
-        }
-      });
-  }
-
-  deleteAnswer(id: number): void {
-    this.preparationService
-      .deletePreparationQuestionById(id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.dataSource.data = this.dataSource.data.filter(
-          (question) => question.id !== id
-        );
-      });
   }
 }
-
-

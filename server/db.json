@@ -13,6 +13,41 @@
       "id": 2,
       "firstName": "Werk",
       "lastName": "Werk"
+    },
+    {
+      "email": "werk2@gmail.com",
+      "password": "$2a$10$NxDU8At4hOT3BxHs4UykTe/O0N6eVUGR91ISH.eXEgH19gLXK6M36",
+      "id": 3,
+      "firstName": "тест",
+      "lastName": "тест"
+    },
+    {
+      "email": "retrit@gmail.com",
+      "password": "$2a$10$ZwMimTMvkWbGviQs3X.wGOHZJRd0uRp5PYMukfuz/c9gqgB9H6gMC",
+      "id": 4,
+      "firstName": "retrit",
+      "lastName": "test"
+    },
+    {
+      "email": "werk33@gmail.com",
+      "password": "$2a$10$XHElNx1oD0lKqveY1K9ZCeYTco.hWda4VSKzgg0FoFpg3Dt4xPC1.",
+      "id": 5,
+      "firstName": "тест",
+      "lastName": "тест"
+    },
+    {
+      "email": "werk333@gmail.com",
+      "password": "$2a$10$FKJ3sg3qJN5SSqNHfjMeSuQfPVyYftg.TNRBs1qCpTkoeAjCd2FE6",
+      "id": 6,
+      "firstName": "333",
+      "lastName": "333"
+    },
+    {
+      "email": "werk5@gmail.com",
+      "password": "$2a$10$0G4XV3m2QLYbAAhxDHUn..m6D/B0Gxa2t4.Ai1dak11F7POtSO79e",
+      "id": 7,
+      "firstName": "5",
+      "lastName": "5"
     }
   ],
   "categories": [

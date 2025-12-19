@@ -1,25 +1,29 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { QuestionItem } from '../models/question.model';
-import { ResponseArray } from '../models/response.models';
+import { Observable } from 'rxjs';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class PreparationService {
-  private baseUrl = 'http://localhost:3000/questions';
+  private readonly baseUrl = 'http://localhost:3000/questions';
 
   constructor(private http: HttpClient) {}
 
-  getPreparationQuestionsByCategory(category: string): Observable<ResponseArray<QuestionItem>> {
-    return this.http.get<ResponseArray<QuestionItem>>(`${this.baseUrl}?category=${category}`);
+  getPreparationQuestionsByCategory(
+    categoryName: string
+  ): Observable<QuestionItem[]> {
+    return this.http.get<QuestionItem[]>(
+      `${this.baseUrl}?category=${categoryName}`
+    );
   }
 
-  deletePreparationQuestionById(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  updateAnswer(id: number, answer: string): Observable<QuestionItem> {
+    return this.http.patch<QuestionItem>(`${this.baseUrl}/${id}`, { answer });
   }
 
-  updatePreparationQuestionById(id: number, question: Partial<QuestionItem>): Observable<QuestionItem> {
-    return this.http.patch<QuestionItem>(`${this.baseUrl}/${id}`, question);
+  deleteAnswer(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/${id}`, { answer: '' });
   }
 }
-

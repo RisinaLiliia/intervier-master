@@ -1,0 +1,39 @@
+  .edit-answer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+   
+  .current-answer {
+    border-radius: 6px;
+    width: 100%;
+    max-height: auto;
+    overflow-y: auto;
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin: 0;
+      white-space: pre-wrap; 
+    }
+  }
+
+  .new-answer-field {
+    width: 100%;
+  }
+}
+
+.edit-answer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+
+
+  button {
+    min-width: 100px;
+  }
+}
