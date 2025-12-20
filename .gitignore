@@ -141,3 +141,6 @@ vite.config.ts.timestamp-*
 
 .angular/cache/
 .angular/
+
+.server/db.json
+.server/user-{id}.json
