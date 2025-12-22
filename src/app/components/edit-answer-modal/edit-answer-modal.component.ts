@@ -1,67 +1,64 @@
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import {
-  MatDialogModule,
-  MAT_DIALOG_DATA,
-  MatDialogRef,
-} from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 
-import { PreparationService } from '../../services/preparation.service';
-import { OpenAiIntegrationService } from '../../services/open-ai-integration.service';
 import { QuestionItem } from '../../models/question.model';
+import { QuestionsService } from '../../services/questions.service';
+import { OpenAiIntegrationService } from '../../services/open-ai-integration.service';
 
 @Component({
-  selector: 'app-edit-answer-modal',
   standalone: true,
-  templateUrl: './edit-answer-modal.component.html',
-  styleUrls: ['./edit-answer-modal.component.scss'],
+  selector: 'app-edit-answer-modal',
   imports: [
-    MatButtonModule,
-    MatInputModule,
-    MatDialogModule,
     ReactiveFormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatInputModule
   ],
+  templateUrl: './edit-answer-modal.component.html',
+  styleUrls: ['./edit-answer-modal.component.scss']
 })
 export class EditAnswerModalComponent {
+
   form = this.fb.group({ answer: [''] });
   isGenerating = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: QuestionItem,
-    public dialogRef: MatDialogRef<EditAnswerModalComponent>,
     private fb: FormBuilder,
-    private preparationService: PreparationService,
-    private aiService: OpenAiIntegrationService
+    private questionsService: QuestionsService,
+    private aiService: OpenAiIntegrationService,
+    private dialogRef: MatDialogRef<EditAnswerModalComponent>
   ) {
     this.form.patchValue({ answer: data.answer ?? '' });
   }
 
-  generateAnswer() {
+  generateAnswer(): void {
     this.isGenerating = true;
     this.aiService.generateAnswer(this.data.question).subscribe({
-      next: (answer: string) => {
+      next: answer => {
         this.form.patchValue({ answer });
         this.isGenerating = false;
       },
-      error: () => (this.isGenerating = false),
+      error: () => (this.isGenerating = false)
     });
   }
 
-  save() {
-    this.preparationService
-      .updateAnswer(this.data.id, this.form.value.answer!)
-      .subscribe(() => this.dialogRef.close(this.form.value.answer));
+  save(): void {
+    this.questionsService
+      .update(this.data.id, this.form.value.answer!)
+      .subscribe(() => this.dialogRef.close(true));
   }
 
-  deleteAnswer() {
-    this.preparationService
-      .deleteAnswer(this.data.id)
-      .subscribe(() => this.dialogRef.close(''));
+  deleteAnswer(): void {
+    this.questionsService
+      .delete(this.data.id)
+      .subscribe(() => this.dialogRef.close(true));
   }
 
-  cancel() {
-    this.dialogRef.close(null); 
+  cancel(): void {
+    this.dialogRef.close(false);
   }
 }

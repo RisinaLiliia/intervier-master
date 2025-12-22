@@ -1,0 +1,19 @@
+<h2 mat-dialog-title class="title">
+Log in to continue!
+</h2>
+
+<mat-dialog-content class="content">
+  <p>
+To gain full access to generating, editing, and saving answers, please log in or register.
+  </p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="actions">
+  <button mat-button (click)="openSignIn()">
+    Sign In
+  </button>
+
+  <button mat-flat-button color="primary" (click)="openSignUp()">
+    Sign Up
+  </button>
+</mat-dialog-actions>

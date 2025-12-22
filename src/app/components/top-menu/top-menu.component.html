@@ -1,5 +1,9 @@
-<mat-tab-group [selectedIndex]="tabIndex" (selectedTabChange)="changeTab($event)">
-  @for (tab of tabs; track tabs) {
-    <mat-tab [label]="tab"></mat-tab>
-    }
+<mat-tab-group
+  [selectedIndex]="tabIndex"
+  (selectedTabChange)="changeTab($event)"
+>
+  @for (cat of categories; track cat.id) {
+   <mat-tab [label]="cat.name | capitalize"></mat-tab>
+  }
 </mat-tab-group>
+
