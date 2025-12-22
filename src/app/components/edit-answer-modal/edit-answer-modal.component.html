@@ -1,24 +1,20 @@
 <h2 mat-dialog-title>{{ data.question }}</h2>
 
-<mat-dialog-content class="edit-answer-content">
-  <div class="current-answer">
-    <p>{{ data.answer || 'No answer yet.' }}</p>
-  </div>
-
+<mat-dialog-content>
   <form [formGroup]="form">
-    <mat-form-field appearance="outline" class="full-width new-answer-field">
+    <mat-form-field appearance="outline" class="full-width">
       <textarea
         matInput
         rows="6"
         formControlName="answer"
-        placeholder="Write your new answer here..."
+        placeholder="Write your answer..."
       ></textarea>
     </mat-form-field>
   </form>
 </mat-dialog-content>
 
-<mat-dialog-actions class="edit-answer-actions" align="end">
-  <button mat-button color="primary" (click)="generateAnswer()" [disabled]="isGenerating">
+<mat-dialog-actions align="end">
+  <button mat-button (click)="generateAnswer()" [disabled]="isGenerating">
     Generate AI
   </button>
 

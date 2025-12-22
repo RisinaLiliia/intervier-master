@@ -1,52 +1,69 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { take } from 'rxjs';
+
+import { QuestionItem } from '../../models/question.model';
+import { QuestionsService } from '../../services/questions.service';
+import { AuthFacade } from '../../core/auth.facade';
+import { AuthRequiredModalComponent } from '../auth-required-modal/auth-required.modal';
 import { DeleteConfirmationModalComponent } from '../delete-confirmation-modal/delete-confirmation-modal.component';
 
 @Component({
   selector: 'app-questions-list',
   standalone: true,
-  imports: [MatDialogModule, HttpClientModule, DeleteConfirmationModalComponent],
+  imports: [
+    MatTableModule,
+    MatButtonModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './questions-list.component.html',
   styleUrls: ['./questions-list.component.scss']
 })
 export class QuestionsListComponent implements OnInit {
-  questions: any[] = [];
 
-  constructor(private dialog: MatDialog, private http: HttpClient) {}
+  questions: QuestionItem[] = [];
+  displayedColumns = ['position', 'question', 'actions'];
+  isLoading = false;
 
-ngOnInit() {
-  this.http.get<any[]>('http://localhost:3000/questions').subscribe({
-    next: (data) => {
-      console.log('Questions loaded:', data);
-      this.questions = data;
-    },
-    error: (err) => console.error('Error loading questions:', err)
-  });
-}
+  constructor(
+    private questionsService: QuestionsService,
+    private auth: AuthFacade,
+    private dialog: MatDialog
+  ) {}
 
+  ngOnInit(): void {
+    this.loadQuestions();
+  }
 
-  loadQuestions() {
-    this.http.get<any[]>('http://localhost:3000/questions').subscribe({
-      next: (data) => this.questions = data,
-      error: (err) => console.error('Failed to load questions', err)
+  loadQuestions(): void {
+    this.isLoading = true;
+    this.questionsService.getByCategory(1).subscribe({ 
+      next: q => {
+        this.questions = q;
+        this.isLoading = false;
+      },
+      error: () => (this.isLoading = false)
     });
   }
 
-  deleteQuestion(id: number) {
-    const dialogRef = this.dialog.open(DeleteConfirmationModalComponent);
-
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (confirmed) {
-        this.http.delete(`http://localhost:3000/questions/${id}`).subscribe({
-          next: () => {
-            console.log('Deleted!');
-            this.questions = this.questions.filter(q => q.id !== id);
-          },
-          error: (err) => console.error('Delete failed', err),
-        });
+  delete(question: QuestionItem): void {
+    this.auth.isAuth$.pipe(take(1)).subscribe(isAuth => {
+      if (!isAuth) {
+        this.dialog.open(AuthRequiredModalComponent);
+        return;
       }
+
+      const ref = this.dialog.open(DeleteConfirmationModalComponent);
+      ref.afterClosed().subscribe(confirmed => {
+        if (confirmed) {
+          this.questionsService.delete(question.id).subscribe(() => {
+            this.questions = this.questions.filter(q => q.id !== question.id);
+          });
+        }
+      });
     });
   }
 }
-

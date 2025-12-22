@@ -1,52 +1,24 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { MatTabsModule, MatTabChangeEvent } from '@angular/material/tabs';
+import { Category } from '../../services/categories.service';
+import { CapitalizePipe } from '../../pipes/capitalize.pipe';
 
 @Component({
   selector: 'app-top-menu',
   standalone: true,
-  imports: [MatTabsModule, RouterModule],
-  templateUrl: './top-menu.component.html',
-  styleUrls: ['./top-menu.component.scss'],
+  imports: [MatTabsModule, CapitalizePipe ],
+  templateUrl: './top-menu.component.html'
 })
-export class TopMenuComponent implements OnInit, OnDestroy {
-  public tabIndex = 0;
-  public tabs = ['Angular', 'TypeScript', 'JavaScript', 'RxJS'];
+export class TopMenuComponent {
 
-  private destroy$ = new Subject<void>();
+  @Input({ required: true }) categories!: Category[];
+  tabIndex = 0;
 
-  constructor(public router: Router, private route: ActivatedRoute) {}
+  constructor(private router: Router) {}
 
-  changeTab(event: MatTabChangeEvent) {
-    if (this.tabIndex === event.index) {
-      return;
-    }
-
-    this.tabIndex = event.index;
-    const tabName = event?.tab?.textLabel?.toLowerCase();
-    this.router.navigate(['/preparation'], {
-      relativeTo: this.route,
-      queryParams: { tabIndex: this.tabIndex, tabName },
-    });
-  }
-
-  ngOnInit(): void {
-    this.route.queryParams
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((queryParams) => {
-        if (
-          queryParams['tabIndex'] &&
-          this.tabIndex !== +queryParams['tabIndex']
-        ) {
-          this.tabIndex = +queryParams['tabIndex'];
-        }
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  changeTab(event: MatTabChangeEvent): void {
+    const category = this.categories[event.index];
+    this.router.navigate(['/categories', category.id]);
   }
 }

@@ -1,6 +1,11 @@
 <mat-nav-list>
-  <a mat-list-item [routerLink]="['/categories/angular']">Angular</a>
-  <a mat-list-item [routerLink]="['/categories/typescript']">Typescript</a>
-  <a mat-list-item [routerLink]="['/categories/javascript']">Javascript</a>
-  <a mat-list-item [routerLink]="['/categories/rxjs']">RxJs</a>
+  @for (cat of categories; track cat.id) {
+    <a
+      mat-list-item
+      [routerLink]="['/categories', cat.id]"
+      routerLinkActive="active"
+    >
+        {{ cat.name | capitalize }}
+    </a>
+  }
 </mat-nav-list>
