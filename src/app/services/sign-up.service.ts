@@ -23,17 +23,15 @@ export class SignUpService {
           const userId = res.user.id;
           const token = res.accessToken;
 
-          // Сохраняем имя/фамилию
           return this.http.patch(
             `http://localhost:3000/users/${userId}`,
             { firstName, lastName },
             { headers: { Authorization: `Bearer ${token}` } }
           ).pipe(
             switchMap(() => {
-              // Инициализация вопросов пользователя через кастомный endpoint
               return this.http.post(
                 `http://localhost:3000/initUserQuestions`,
-                {}, // тело можно оставить пустым
+                {}, 
                 { headers: { Authorization: `Bearer ${token}` } }
               );
             }),
