@@ -3,25 +3,23 @@ import { Injectable } from '@angular/core';
 import { StorageService } from '../services/storage.service';
 import { tap } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class SignInService {
-
-  private apiUrl = 'http://localhost:3000/login';
 
   constructor(
     private http: HttpClient,
-    private storageService: StorageService
+    private storage: StorageService
   ) {}
 
   login(email: string, password: string) {
     return this.http
-      .post<{ accessToken: string }>(this.apiUrl, { email, password })
+      .post<{ accessToken: string }>(
+        'http://localhost:3000/login',
+        { email, password }
+      )
       .pipe(
-        tap(res => {
-          this.storageService.setToken(res.accessToken);
-        })
+        tap(res => this.storage.setToken(res.accessToken))
       );
   }
 }
+

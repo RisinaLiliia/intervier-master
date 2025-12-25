@@ -8,7 +8,7 @@ import { take } from 'rxjs';
 
 import { QuestionItem } from '../../models/question.model';
 import { QuestionsService } from '../../services/questions.service';
-import { AuthFacade } from '../../core/auth.facade';
+import { AuthFacade } from '../../core/auth/auth.facade';
 import { AuthRequiredModalComponent } from '../auth-required-modal/auth-required.modal';
 import { EditAnswerModalComponent } from '../edit-answer-modal/edit-answer-modal.component';
 import { TruncatePipe } from "../../pipes/truncate.pipe"
@@ -53,16 +53,17 @@ export class CategoryComponent implements OnInit {
   }
 
   openGenerateDialog(question: QuestionItem): void {
-    this.auth.isAuth$.pipe(take(1)).subscribe(isAuth => {
-      if (!isAuth) {
-        this.dialog.open(AuthRequiredModalComponent);
-        return;
-      }
+  this.auth.isAuth$.pipe(take(1)).subscribe((isAuth: boolean) => {
+    if (!isAuth) {
+      this.dialog.open(AuthRequiredModalComponent);
+      return;
+    }
 
-      this.dialog.open(EditAnswerModalComponent, {
-        width: '600px',
-        data: question
-      });
+    this.dialog.open(EditAnswerModalComponent, {
+      width: '600px',
+      data: question
     });
-  }
+  });
+}
+
 }

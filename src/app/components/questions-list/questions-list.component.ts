@@ -7,7 +7,7 @@ import { take } from 'rxjs';
 
 import { QuestionItem } from '../../models/question.model';
 import { QuestionsService } from '../../services/questions.service';
-import { AuthFacade } from '../../core/auth.facade';
+import { AuthFacade } from '../../core/auth/auth.facade';
 import { AuthRequiredModalComponent } from '../auth-required-modal/auth-required.modal';
 import { DeleteConfirmationModalComponent } from '../delete-confirmation-modal/delete-confirmation-modal.component';
 
