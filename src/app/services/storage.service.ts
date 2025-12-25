@@ -1,33 +1,29 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class StorageService {
-  private readonly TOKEN_KEY = 'authToken';
-  private tokenSubject: BehaviorSubject<string | null>;
+  private readonly TOKEN_KEY = 'accessToken';
 
-  constructor() {
-    const token = localStorage.getItem(this.TOKEN_KEY);
-    this.tokenSubject = new BehaviorSubject<string | null>(token);
+  private token$ = new BehaviorSubject<string | null>(
+    localStorage.getItem(this.TOKEN_KEY)
+  );
+
+  setToken(token: string) {
+    localStorage.setItem(this.TOKEN_KEY, token);
+    this.token$.next(token);
   }
 
-  setToken(token: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
-    this.tokenSubject.next(token);
+  clear() {
+    localStorage.removeItem(this.TOKEN_KEY);
+    this.token$.next(null);
   }
 
   getToken(): string | null {
-    return this.tokenSubject.value;
+    return this.token$.value;
   }
 
-  getTokenObservable(): Observable<string | null> {
-    return this.tokenSubject.asObservable();
-  }
-
-  removeToken(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    this.tokenSubject.next(null);
+  tokenChanges(): Observable<string | null> {
+    return this.token$.asObservable();
   }
 }

@@ -1,14 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { Observable, map } from 'rxjs';
+import { AuthFacade } from '../../core/auth/auth.facade';
 import { SignInModalComponent } from '../sign-in-modal/sign-in-modal.component';
 import { SignUpModalComponent } from '../sign-up-modal/sign-up-modal.component';
-import { StorageService } from '../../services/storage.service';
-import { jwtDecode } from 'jwt-decode';
-import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-user-panel',
@@ -17,33 +14,17 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './user-panel.component.html',
   styleUrls: ['./user-panel.component.scss'],
 })
-export class UserPanelComponent implements OnInit {
+export class UserPanelComponent {
 
-  user$!: Observable<{ firstName: string; lastName: string } | null>;
+  user$ = this.auth.user$;
 
   constructor(
-    private dialog: MatDialog,
-    private storage: StorageService,
-    private http: HttpClient
+    private auth: AuthFacade,
+    private dialog: MatDialog
   ) {}
 
-  ngOnInit() {
-    this.user$ = this.storage.getTokenObservable().pipe(
-      map(token => {
-        if (!token) return null;
-
-        const decode: any = jwtDecode(token);
-
-        return {
-          firstName: decode.firstName,
-          lastName: decode.lastName
-        };
-      })
-    );
-  }
-
-  signOut() {
-    this.storage.removeToken();
+  logout() {
+    this.auth.logout();
   }
 
   openSignInModal() {

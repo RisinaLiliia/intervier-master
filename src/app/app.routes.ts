@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { ShellComponent } from './shell/shell.component';
 import { CategoryComponent } from './components/category/category.component';
 import { PreparationComponent } from './components/preparation/preparation.component';
-import { AuthGuard } from './core/auth.guard';
+import { AuthGuard } from './core/auth/auth.guard';
 
 import { CategoriesResolver } from './core/categories.resolver';
 
