@@ -3,11 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "ng": "ng",
     "start": "ng serve",
     "build": "npx ng build",
     "build:prod": "npx ng build --configuration production",
-    "vercel-build": "npm run build:prod",
+    "vercel-build": "npx ng build --configuration production",
     "preview": "npx serve -s dist/angular-course-code",
     "test": "npx ng test"
   },
@@ -45,3 +44,4 @@
     "typescript": "~5.4.2"
   }
 }
+
