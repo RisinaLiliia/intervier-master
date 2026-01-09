@@ -1,19 +1,15 @@
+
 export interface Answer {
-  id: number;
-  questionId: number;
-  userId: number;
+  _id: string;
+  questionId: string;
+  userId: string;
   text: string;
   updatedAt: string;
 }
-
-export interface QuestionWithAnswer {
-  id: number;
-  question: string;
-  answer?: string;
-}
-
 export interface EditAnswerDialogData {
-  id: number;
+  _id: string;              
   question: string;
-  answer?: string;
+  answers: Answer[];        
+  currentUserId: string;     
 }
+

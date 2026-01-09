@@ -1,11 +1,11 @@
 <mat-nav-list>
-  @for (cat of categories; track cat.id) {
+  @for (cat of categories; track cat._id) {
     <a
-      mat-list-item
-      [routerLink]="['/categories', cat.id]"
-      routerLinkActive="active"
-    >
-        {{ cat.name | capitalize }}
-    </a>
+  mat-list-item
+  [routerLink]="['/categories', cat._id]"
+  routerLinkActive="active"
+>
+  {{ cat.name | capitalize }}
+</a>
   }
 </mat-nav-list>

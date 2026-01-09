@@ -1,9 +1,10 @@
 import { inject } from '@angular/core';
-import { CategoriesService } from '../services/categories.service';
 import { ResolveFn } from '@angular/router';
 
-export const CategoriesResolver: ResolveFn<any[]> = () => {
-  const categoriesService = inject(CategoriesService);
-  return categoriesService.getAll();
-};
+import { Category } from '../models/category.model';
+import { CategoryService } from '../services/categories.service';
 
+export const CategoriesResolver: ResolveFn<Category[]> = () => {
+  const categoryService = inject(CategoryService);
+  return categoryService.getAll();
+};

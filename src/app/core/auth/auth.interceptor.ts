@@ -1,31 +1,17 @@
-import {
-  HttpInterceptor,
-  HttpHandler,
-  HttpRequest,
-  HttpEvent
-} from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { StorageService } from '../../services/storage.service';
+import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { AuthFacade } from '../auth/auth.facade';
 
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
+export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
+  const auth = inject(AuthFacade);
+  const token = auth.getToken();
 
-  constructor(private storage: StorageService) {}
+  if (!token) return next(req); 
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token = this.storage.getToken();
+  const authReq = req.clone({
+    setHeaders: { Authorization: `Bearer ${token}` }
+  });
 
-    if (!token) {
-      return next.handle(req);
-    }
+  return next(authReq);
+};
 
-    return next.handle(
-      req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-    );
-  }
-}

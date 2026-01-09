@@ -6,12 +6,12 @@
     <mat-label>Email</mat-label>
     <input matInput type="email" formControlName="email" required />
 
-    @if (email?.invalid && (email?.dirty || email?.touched)) {
+    @if (email.invalid && (email.dirty || email.touched)) {
       <mat-error>
-        @if (email?.hasError('required')) {
+        @if (email.hasError('required')) {
           Email is required
         }
-        @if (email?.hasError('email')) {
+        @if (email.hasError('email')) {
           Enter a valid email
         }
       </mat-error>
@@ -22,7 +22,7 @@
     <mat-label>Password</mat-label>
     <input matInput type="password" formControlName="password" required />
 
-    @if (password?.invalid && (password?.dirty || password?.touched)) {
+    @if (password.invalid && (password.dirty || password.touched)) {
       <mat-error>
         Password is required
       </mat-error>
@@ -33,7 +33,7 @@
     <mat-label>First Name</mat-label>
     <input matInput formControlName="firstName" required />
 
-    @if (firstName?.invalid && (firstName?.dirty || firstName?.touched)) {
+    @if (firstName.invalid && (firstName.dirty || firstName.touched)) {
       <mat-error>First Name is required</mat-error>
     }
   </mat-form-field>
@@ -42,7 +42,7 @@
     <mat-label>Last Name</mat-label>
     <input matInput formControlName="lastName" required />
 
-    @if (lastName?.invalid && (lastName?.dirty || lastName?.touched)) {
+    @if (lastName.invalid && (lastName.dirty || lastName.touched)) {
       <mat-error>Last Name is required</mat-error>
     }
   </mat-form-field>
@@ -55,4 +55,5 @@
   </div>
 
 </form>
+
 

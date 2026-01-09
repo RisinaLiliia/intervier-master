@@ -1,30 +1,78 @@
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs';
-import { StorageService } from '../../services/storage.service';
-import { jwtDecode } from 'jwt-decode';
-
-export interface User {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
+import { BehaviorSubject, catchError, of, tap } from 'rxjs';
+import { AuthService, User } from '../../services/auth-user.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthFacade {
+  private userSubject = new BehaviorSubject<User | null>(null);
+  readonly user$ = this.userSubject.asObservable();
+  readonly isAuth$ = this.user$.pipe(tap(user => !!user));
 
-  readonly user$ = this.storage.tokenChanges().pipe(
-    map(token => token ? jwtDecode<User>(token) : null)
-  );
+  private accessToken: string | null = null;
+  private hasTriedRefresh = false; 
 
-  readonly isAuth$ = this.user$.pipe(
-    map(user => !!user)
-  );
+  constructor(private authService: AuthService) {}
 
-  constructor(private storage: StorageService) {}
+  initSession() {
+    if (this.hasTriedRefresh) return;
+    this.hasTriedRefresh = true;
+
+    const token = this.getRefreshTokenCookie();
+    if (!token) return;
+
+    this.authService.refresh().pipe(
+      catchError(() => of(null))
+    ).subscribe(result => {
+      if (result?.accessToken) {
+        this.accessToken = result.accessToken;
+        this.loadUser();
+      } else {
+        this.clearSession();
+      }
+    });
+  }
+
+  private loadUser() {
+    this.authService.me().pipe(
+      catchError(() => of(null))
+    ).subscribe(user => this.userSubject.next(user));
+  }
+
+  login(email: string, password: string) {
+    return this.authService.login(email, password).pipe(
+      tap(result => {
+        this.accessToken = result.accessToken;
+        this.userSubject.next(result.user);
+      })
+    );
+  }
+
+  register(data: { firstName: string; lastName: string; email: string; password: string }) {
+    return this.authService.register(data).pipe(
+      tap(result => {
+        this.accessToken = result.accessToken;
+        this.userSubject.next(result.user);
+      })
+    );
+  }
 
   logout() {
-    this.storage.clear();
+    this.authService.logout().subscribe(() => this.clearSession());
+  }
+
+  private clearSession() {
+    this.accessToken = null;
+    this.userSubject.next(null);
+  }
+
+  getToken() {
+    return this.accessToken;
+  }
+
+  private getRefreshTokenCookie(): string | null {
+    const match = document.cookie.match(/refreshToken=([^;]+)/);
+    return match ? match[1] : null;
   }
 }
+
 

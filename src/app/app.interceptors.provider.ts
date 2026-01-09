@@ -1,8 +1,12 @@
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { bootstrapApplication } from '@angular/platform-browser';
 import { AuthInterceptor } from './core/auth/auth.interceptor';
-import { ErrorInterceptor } from './core/error.interceptor';
+import { ErrorInterceptor } from './core/error/error.interceptor';
+import { AppComponent } from './app.component';
 
-export const httpInterceptorProviders = [
-  { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-  { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-];
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideHttpClient(withInterceptors([AuthInterceptor, ErrorInterceptor]))
+  ]
+});
