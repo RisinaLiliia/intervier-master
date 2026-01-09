@@ -1,13 +1,14 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatTabsModule, MatTabChangeEvent } from '@angular/material/tabs';
-import { Category } from '../../services/categories.service';
+import { Category } from '../../models/category.model';
 import { CapitalizePipe } from '../../pipes/capitalize.pipe';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-top-menu',
   standalone: true,
-  imports: [MatTabsModule, CapitalizePipe ],
+  imports: [CommonModule, MatTabsModule, CapitalizePipe ],
   templateUrl: './top-menu.component.html'
 })
 export class TopMenuComponent {
@@ -19,6 +20,6 @@ export class TopMenuComponent {
 
   changeTab(event: MatTabChangeEvent): void {
     const category = this.categories[event.index];
-    this.router.navigate(['/categories', category.id]);
+    this.router.navigate(['/categories', category._id]);
   }
 }

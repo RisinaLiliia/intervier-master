@@ -1,7 +1,6 @@
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthFacade } from '../../core/auth/auth.facade';
 import { SignInModalComponent } from '../sign-in-modal/sign-in-modal.component';
@@ -10,28 +9,28 @@ import { SignUpModalComponent } from '../sign-up-modal/sign-up-modal.component';
 @Component({
   selector: 'app-user-panel',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule],
-  templateUrl: './user-panel.component.html',
+  imports: [CommonModule, MatButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: `./user-panel.component.html`,
   styleUrls: ['./user-panel.component.scss'],
 })
 export class UserPanelComponent {
+  private readonly auth = inject(AuthFacade);
+  private readonly dialog = inject(MatDialog);
 
-  user$ = this.auth.user$;
+  readonly user$ = this.auth.user$;
 
-  constructor(
-    private auth: AuthFacade,
-    private dialog: MatDialog
-  ) {}
-
-  logout() {
+  logout(): void {
     this.auth.logout();
   }
 
-  openSignInModal() {
+  openSignIn(): void {
     this.dialog.open(SignInModalComponent, { width: '400px' });
   }
 
-  openSignUpModal() {
+  openSignUp(): void {
     this.dialog.open(SignUpModalComponent, { width: '400px' });
   }
 }
+
+

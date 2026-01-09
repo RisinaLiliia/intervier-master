@@ -2,8 +2,7 @@ import { Routes } from '@angular/router';
 import { ShellComponent } from './shell/shell.component';
 import { CategoryComponent } from './components/category/category.component';
 import { PreparationComponent } from './components/preparation/preparation.component';
-import { AuthGuard } from './core/auth/auth.guard';
-
+import { authGuard } from './core/auth/auth.guard';
 import { CategoriesResolver } from './core/categories.resolver';
 
 export const routes: Routes = [
@@ -12,13 +11,30 @@ export const routes: Routes = [
     component: ShellComponent,
     resolve: { categories: CategoriesResolver },
     children: [
-      { path: 'categories/:categoryId', component: CategoryComponent },
-      { path: 'preparation', component: PreparationComponent, canActivate: [AuthGuard] },
-      { path: '', redirectTo: '/categories/1', pathMatch: 'full' },
-      { path: '**', redirectTo: '/categories/1' }
+      {
+        path: 'categories/:categoryId',
+        component: CategoryComponent
+      },
+      {
+        path: 'preparation',
+        component: PreparationComponent,
+        canActivate: [authGuard]
+      },
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'categories'
+      },
+      {
+        path: '**',
+        redirectTo: 'categories'
+      }
     ]
   }
 ];
+
+
+
 
 
 

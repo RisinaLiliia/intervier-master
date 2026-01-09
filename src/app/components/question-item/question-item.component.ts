@@ -11,15 +11,8 @@ import { DeleteConfirmationModalComponent } from '../delete-confirmation-modal/d
 @Component({
   selector: 'app-question-item',
   standalone: true,
-  template: `
-    <div class="question-item">
-      <span>{{ question.question }}</span>
-
-      <button mat-button color="warn" (click)="delete()">
-        Delete
-      </button>
-    </div>
-  `
+  templateUrl: './question-item.component.html', 
+  styleUrls: ['./question-item.component.scss'] 
 })
 export class QuestionItemComponent {
 
@@ -32,19 +25,25 @@ export class QuestionItemComponent {
   ) {}
 
   delete(): void {
-    this.auth.isAuth$.pipe(take(1)).subscribe(isAuth => {
-      if (!isAuth) {
-        this.dialog.open(AuthRequiredModalComponent);
-        return;
-      }
+  if (!this.question.answerId) return;
 
-      const ref = this.dialog.open(DeleteConfirmationModalComponent);
-      ref.afterClosed().subscribe(confirmed => {
-        if (confirmed) {
-          this.questionsService.delete(this.question.id).subscribe();
-        }
-      });
+  this.auth.isAuth$.pipe(take(1)).subscribe(isAuth => {
+    if (!isAuth) {
+      this.dialog.open(AuthRequiredModalComponent);
+      return;
+    }
+
+    const ref = this.dialog.open(DeleteConfirmationModalComponent);
+
+    ref.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.questionsService
+          .deleteAnswer(this.question._id, this.question.answerId!)
+          .subscribe();
+      }
     });
-  }
+  });
+}
+
 }
 

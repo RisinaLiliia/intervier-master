@@ -4,36 +4,37 @@
 
   <mat-form-field appearance="fill">
     <mat-label>Email</mat-label>
-    <input matInput type="email" formControlName="email" required />
+    <input matInput type="email" formControlName="email" />
 
-    @if (email?.invalid && (email?.dirty || email?.touched)) {
+    @if (email.invalid && email.touched) {
       <mat-error>
-        @if (email?.hasError('required')) {
-          Email is required
-        }
-        @if (email?.hasError('email')) {
-          Enter a valid email
-        }
+        @if (email.hasError('required')) { Email is required }
+        @if (email.hasError('email')) { Enter a valid email }
       </mat-error>
     }
   </mat-form-field>
 
   <mat-form-field appearance="fill">
     <mat-label>Password</mat-label>
-    <input matInput type="password" formControlName="password" required />
+    <input matInput type="password" formControlName="password" />
 
-    @if (password?.invalid && (password?.dirty || password?.touched)) {
-      <mat-error>
-        Password is required
-      </mat-error>
+    @if (password.invalid && password.touched) {
+      <mat-error>Password is required</mat-error>
     }
   </mat-form-field>
 
   <div class="actions">
     <button mat-button type="button" (click)="onCancel()">Cancel</button>
-    <button mat-flat-button color="primary" type="submit">
+    <button mat-flat-button color="primary" type="submit" [disabled]="loading">
       Sign In
     </button>
   </div>
 
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
 </form>
+
+
+

@@ -2,7 +2,7 @@
 
 <mat-dialog-content class="edit-answer-content">
   <div class="current-answer">
-    <p>{{ data.answer || 'No answer yet.' }}</p>
+    <p>{{ form.value.answer || 'No answer yet.' }}</p>
   </div>
 
   <form [formGroup]="form">
@@ -34,3 +34,4 @@
     Cancel
   </button>
 </mat-dialog-actions>
+

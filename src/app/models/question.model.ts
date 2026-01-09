@@ -1,16 +1,11 @@
+import { Answer } from './answer.model';
+
+
 export interface QuestionItem {
-  id: number;
+  _id: string;
   question: string;
-  answer?: string;
-  categoryId: number;
-}
-
-export interface CategoryItem {
-  id: number;
-  name: string;
-}
-
-export interface ResponseArray<T> {
-  data: T[];
-  error?: string;
+  categoryId: string;
+  answers?: Answer[];  
+  answer?: string;    
+  answerId?: string;   
 }

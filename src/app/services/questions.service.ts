@@ -1,25 +1,41 @@
-
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../environments/environment';
+import { Observable } from 'rxjs';
 import { QuestionItem } from '../models/question.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionsService {
-  private api = 'http://localhost:3000/questions';
+  private api = environment.apiUrl + '/answers';
 
   constructor(private http: HttpClient) {}
 
-  getByCategory(categoryId: number) {
+  getByCategory(categoryId: string): Observable<QuestionItem[]> {
     return this.http.get<QuestionItem[]>(
-      `${this.api}?categoryId=${categoryId}`
+      `${environment.apiUrl}/questions?categoryId=${categoryId}`
     );
   }
 
-  update(id: number, answer: string) {
-    return this.http.patch(`${this.api}/${id}`, { answer });
+  createAnswer(questionId: string, answer: string) {
+    return this.http.post(
+      `${this.api}/${questionId}`,
+      { answer },
+      { withCredentials: true }
+    );
   }
 
-  delete(id: number) {
-    return this.http.delete(`${this.api}/${id}`);
+  updateAnswer(questionId: string, answerId: string, answer: string) {
+    return this.http.patch(
+      `${this.api}/${questionId}/${answerId}`,
+      { answer },
+      { withCredentials: true }
+    );
+  }
+
+  deleteAnswer(questionId: string, answerId: string) {
+    return this.http.delete(
+      `${this.api}/${questionId}/${answerId}`,
+      { withCredentials: true }
+    );
   }
 }

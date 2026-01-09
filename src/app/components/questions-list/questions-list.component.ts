@@ -40,7 +40,7 @@ export class QuestionsListComponent implements OnInit {
 
   loadQuestions(): void {
     this.isLoading = true;
-    this.questionsService.getByCategory(1).subscribe({ 
+    this.questionsService.getByCategory("1").subscribe({ 
       next: q => {
         this.questions = q;
         this.isLoading = false;
@@ -49,21 +49,5 @@ export class QuestionsListComponent implements OnInit {
     });
   }
 
-  delete(question: QuestionItem): void {
-    this.auth.isAuth$.pipe(take(1)).subscribe(isAuth => {
-      if (!isAuth) {
-        this.dialog.open(AuthRequiredModalComponent);
-        return;
-      }
 
-      const ref = this.dialog.open(DeleteConfirmationModalComponent);
-      ref.afterClosed().subscribe(confirmed => {
-        if (confirmed) {
-          this.questionsService.delete(question.id).subscribe(() => {
-            this.questions = this.questions.filter(q => q.id !== question.id);
-          });
-        }
-      });
-    });
-  }
 }

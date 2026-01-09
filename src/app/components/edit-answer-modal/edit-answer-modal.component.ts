@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -10,14 +10,21 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { QuestionItem } from '../../models/question.model';
 import { QuestionsService } from '../../services/questions.service';
 import { OpenAiIntegrationService } from '../../services/open-ai-integration.service';
 import { AuthRequiredModalComponent } from '../auth-required-modal/auth-required.modal';
 
+export interface EditAnswerDialogData {
+  questionId: string;
+  question: string;
+  answer?: string;
+  answerId?: string;
+}
+
+
 @Component({
-  standalone: true,
   selector: 'app-edit-answer-modal',
+  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
@@ -29,35 +36,34 @@ import { AuthRequiredModalComponent } from '../auth-required-modal/auth-required
 })
 export class EditAnswerModalComponent {
 
-  form = this.fb.group({
-    answer: ['']
+  readonly form = this.fb.nonNullable.group({
+    answer: ['', Validators.required]
   });
 
   isGenerating = false;
   isSaving = false;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: QuestionItem,
-    private fb: FormBuilder,
-    private questionsService: QuestionsService,
-    private aiService: OpenAiIntegrationService,
-    private dialogRef: MatDialogRef<EditAnswerModalComponent>,
-    private dialog: MatDialog
+    @Inject(MAT_DIALOG_DATA) public readonly data: EditAnswerDialogData,
+    private readonly fb: FormBuilder,
+    private readonly questionsService: QuestionsService,
+    private readonly aiService: OpenAiIntegrationService,
+    private readonly dialogRef: MatDialogRef<EditAnswerModalComponent>,
+    private readonly dialog: MatDialog
   ) {
-    this.form.patchValue({ answer: data.answer ?? '' });
+    if (data.answer) {
+      this.form.patchValue({ answer: data.answer });
+    }
   }
 
   generateAnswer(): void {
     this.isGenerating = true;
-
     this.aiService.generateAnswer(this.data.question).subscribe({
-      next: answer => {
+      next: (answer) => {
         this.form.patchValue({ answer });
         this.isGenerating = false;
       },
-      error: () => {
-        this.isGenerating = false;
-      }
+      error: () => (this.isGenerating = false)
     });
   }
 
@@ -65,13 +71,23 @@ export class EditAnswerModalComponent {
     if (this.form.invalid) return;
 
     this.isSaving = true;
+    const { answer } = this.form.getRawValue();
 
-    this.questionsService.update(
-      this.data.id,
-      this.form.value.answer!
-    ).subscribe({
+    const request$ = this.data.answerId
+      ? this.questionsService.updateAnswer(
+        this.data.questionId,
+        this.data.answerId,
+        answer
+      )
+      : this.questionsService.createAnswer(
+        this.data.questionId,
+        answer
+      );
+
+    request$.subscribe({
       next: () => {
-        this.dialogRef.close(true);
+        this.isSaving = false;
+        this.dialogRef.close({ answer });
       },
       error: (err: HttpErrorResponse) => {
         this.isSaving = false;
@@ -81,13 +97,24 @@ export class EditAnswerModalComponent {
   }
 
   deleteAnswer(): void {
-    this.questionsService.delete(this.data.id).subscribe({
+    if (!this.data.answerId) {
+      console.warn('No user answer to delete');
+      return;
+    }
+
+    if (!this.data.questionId) {
+      console.error('Cannot delete answer: questionId is missing');
+      return;
+    }
+
+    this.questionsService.deleteAnswer(this.data.questionId, this.data.answerId).subscribe({
       next: () => {
-        this.dialogRef.close(true);
+        this.data.answer = undefined;
+        this.data.answerId = undefined;
+
+        this.dialogRef.close({ answer: undefined });
       },
-      error: (err: HttpErrorResponse) => {
-        this.handleAuthError(err);
-      }
+      error: (err: HttpErrorResponse) => this.handleAuthError(err)
     });
   }
 
@@ -101,5 +128,5 @@ export class EditAnswerModalComponent {
       this.dialog.open(AuthRequiredModalComponent);
     }
   }
-}
 
+}
