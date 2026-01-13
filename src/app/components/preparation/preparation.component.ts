@@ -6,11 +6,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { QuestionItem } from '../../models/question.model';
-import { CategoryService } from '../../services/categories.service';
+import { QuestionItem } from '../../core/questions/question.model';
+import { CategoryService } from '../../core/categories/categories.service';
 import { AuthFacade } from '../../core/auth/auth.facade';
 import { AuthRequiredModalComponent } from '../auth-required-modal/auth-required.modal';
 import { EditAnswerModalComponent } from '../edit-answer-modal/edit-answer-modal.component';
+import { QuestionsFacade } from '../../core/questions/questions.facade';
 
 @Component({
   selector: 'app-preparation',
@@ -22,7 +23,7 @@ import { EditAnswerModalComponent } from '../edit-answer-modal/edit-answer-modal
 export class PreparationComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
-  private readonly categoryService = inject(CategoryService);
+  private readonly questionsFacade = inject(QuestionsFacade);
   private readonly auth = inject(AuthFacade);
   private readonly dialog = inject(MatDialog);
 
@@ -44,24 +45,26 @@ export class PreparationComponent implements OnInit {
   }
 
   private loadQuestions(categoryId: string): void {
-    this.isLoading = true;
+  this.isLoading = true;
 
-    this.categoryService.getQuestions(categoryId, this.currentUserId)
-  .pipe(takeUntilDestroyed(this.destroyRef))
-  .subscribe({
-    next: questions => {
-      this.questions = questions;
-      this.isLoading = false;
-    },
-    error: err => {
-      this.isLoading = false;
-      if (err?.status === 401 && err?.error?.message === 'NO_TOKEN') return;
-      if (err?.status === 401) this.dialog.open(AuthRequiredModalComponent);
-      else console.error('Error loading questions', err);
-    }
-  });
+  this.questionsFacade
+    .load(categoryId, this.currentUserId)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: questions => {
+        this.questions = questions;
+        this.isLoading = false;
+      },
+      error: err => {
+        this.isLoading = false;
+        if (err?.status === 401 && err?.error?.message === 'NO_TOKEN') return;
+        if (err?.status === 401) this.dialog.open(AuthRequiredModalComponent);
+        else console.error('Error loading questions', err);
+      }
+    });
+ }
 
-  }
+
 
   openEditDialog(question: QuestionItem): void {
     this.auth.isAuth$

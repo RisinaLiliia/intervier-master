@@ -7,7 +7,7 @@ import {
   HttpEvent
 } from '@angular/common/http';
 import { Observable, catchError, switchMap, throwError } from 'rxjs';
-import { AuthService } from '../../services/auth-user.service';
+import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
 
 let refreshInProgress = false;

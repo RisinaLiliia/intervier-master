@@ -2,8 +2,8 @@ import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { take } from 'rxjs';
 
-import { QuestionItem } from '../../models/question.model';
-import { QuestionsService } from '../../services/questions.service';
+import { QuestionItem } from '../../core/questions/question.model';
+import { QuestionsService } from '../../core/questions/questions.service';
 import { AuthFacade } from '../../core/auth/auth.facade';
 import { AuthRequiredModalComponent } from '../auth-required-modal/auth-required.modal';
 

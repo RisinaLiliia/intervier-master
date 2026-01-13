@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AuthFacade } from './core/auth/auth.facade';
 
@@ -6,12 +6,12 @@ import { AuthFacade } from './core/auth/auth.facade';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet],
-  template: `<router-outlet></router-outlet>`
+  template: `<router-outlet />`,
 })
-export class AppComponent {
-  constructor(private auth: AuthFacade) {}
+export class AppComponent implements OnInit {
+  private readonly auth = inject(AuthFacade);
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.auth.initSession();
   }
 }

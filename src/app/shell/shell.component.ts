@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { TopMenuComponent } from '../components/top-menu/top-menu.component';
 import { LeftSideMenuComponent } from '../components/left-side-menu/left-side-menu.component';
@@ -8,7 +8,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CategoryItem } from '../models/category.model';
+import { CategoryItem } from '../core/categories/category.model';
 
 @Component({
   selector: 'app-shell',
@@ -22,18 +22,16 @@ import { CategoryItem } from '../models/category.model';
     MatSidenavModule,
     MatListModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   templateUrl: './shell.component.html',
-  styleUrls: ['./shell.component.scss']
+  styleUrls: ['./shell.component.scss'],
 })
 export class ShellComponent implements OnInit {
-  categories: CategoryItem[] = [];
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  categories: CategoryItem[] = [];
 
   ngOnInit(): void {
     const categories = this.route.snapshot.data['categories'] as CategoryItem[];

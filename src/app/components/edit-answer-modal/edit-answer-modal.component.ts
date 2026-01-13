@@ -5,8 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { take } from 'rxjs';
 
-import { QuestionsService } from '../../services/questions.service';
-import { OpenAiIntegrationService } from '../../services/open-ai-integration.service';
+import { QuestionsService } from '../../core/questions/questions.service';
+import { OpenAiIntegrationService } from '../../core/open-ai-integration.service';
 import { AuthFacade } from '../../core/auth/auth.facade';
 import { AuthRequiredModalComponent } from '../auth-required-modal/auth-required.modal';
 
