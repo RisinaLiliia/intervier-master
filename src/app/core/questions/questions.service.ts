@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs';
-import { environment } from '../environments/environment';
-import { QuestionItem } from '../models/question.model';
+import { environment } from '../../environments/environment';
+import { QuestionItem } from './question.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionsService {

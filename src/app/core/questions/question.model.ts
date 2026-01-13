@@ -1,4 +1,13 @@
 
+export interface QuestionItem {
+  _id: string;
+  question: string;
+  categoryId: string;
+  answers: Answer[];
+  displayedAnswer: { text: string; userId?: string; _id?: string };
+  defaultAnswer?: { text: string };
+}
+
 export interface Answer {
   _id: string;
   questionId: string;
@@ -18,4 +27,3 @@ export interface EditAnswerDialogData {
   answers: Answer[];        
   currentUserId: string;     
 }
-

@@ -3,7 +3,7 @@ import { ShellComponent } from './shell/shell.component';
 import { CategoryComponent } from './components/category/category.component';
 import { PreparationComponent } from './components/preparation/preparation.component';
 import { authGuard } from './core/auth/auth.guard';
-import { CategoriesResolver } from './core/categories.resolver';
+import { CategoriesResolver } from './core/categories/categories.resolver';
 
 export const routes: Routes = [
   {
@@ -13,25 +13,26 @@ export const routes: Routes = [
     children: [
       {
         path: 'categories/:categoryId',
-        component: CategoryComponent
+        component: CategoryComponent,
       },
       {
         path: 'preparation',
         component: PreparationComponent,
-        canActivate: [authGuard]
+        canActivate: [authGuard],
       },
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'categories'
+        redirectTo: 'categories',
       },
       {
         path: '**',
-        redirectTo: 'categories'
-      }
-    ]
-  }
+        redirectTo: 'categories',
+      },
+    ],
+  },
 ];
+
 
 
 

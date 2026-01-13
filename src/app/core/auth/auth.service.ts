@@ -1,16 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../environments/environment';
-import { User } from '../models/user.model';
-import { Observable } from 'rxjs';
-
-export interface MeResponse {
-  user: User | null;
-}
-
-export interface AuthResponse {
-  user: User;
-}
+import { environment } from '../../environments/environment';
+import { AuthResponse, MeResponse, RegisterDto } from './auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -18,15 +9,15 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(email: string, password: string): Observable<AuthResponse> {
+  login(email: string, password: string) {
     return this.http.post<AuthResponse>(
       `${this.api}/login`,
       { email, password },
-      { withCredentials: true } 
+      { withCredentials: true }
     );
   }
 
-  register(data: { firstName: string; lastName: string; email: string; password: string }): Observable<AuthResponse> {
+  register(data: RegisterDto) {
     return this.http.post<AuthResponse>(
       `${this.api}/register`,
       data,
@@ -34,14 +25,14 @@ export class AuthService {
     );
   }
 
-  me(): Observable<MeResponse> {
+  me() {
     return this.http.get<MeResponse>(
       `${this.api}/me`,
       { withCredentials: true }
     );
   }
 
-  logout(): Observable<void> {
+  logout() {
     return this.http.post<void>(
       `${this.api}/logout`,
       {},
@@ -49,7 +40,7 @@ export class AuthService {
     );
   }
 
-  refresh(): Observable<void> {
+  refresh() {
     return this.http.post<void>(
       `${this.api}/refresh`,
       {},
@@ -57,5 +48,3 @@ export class AuthService {
     );
   }
 }
-
-

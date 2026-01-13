@@ -1,56 +1,54 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, of, tap, map } from 'rxjs';
-import { AuthService } from '../../services/auth-user.service';
-import { User } from '../../models/user.model';
+import { AuthService } from './auth.service';
+import { User } from './auth.models';
 
+export interface RegisterDto {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
 @Injectable({ providedIn: 'root' })
 export class AuthFacade {
-  private userSubject = new BehaviorSubject<User | null>(null);
+  private readonly userSubject = new BehaviorSubject<User | null>(null);
+
   readonly user$ = this.userSubject.asObservable();
-  readonly isAuth$ = this.user$.pipe(map(user => !!user));
+  readonly isAuth$ = this.user$.pipe(map(Boolean));
 
-  private hasTriedInit = false;
+  private initialized = false;
 
-  constructor(private authService: AuthService) {}
+  constructor(private auth: AuthService) {}
 
-initSession(): void {
-  if (this.hasTriedInit) return;
-  this.hasTriedInit = true;
+  initSession(): void {
+    if (this.initialized) return;
+    this.initialized = true;
 
-  const hasRefreshToken = document.cookie.includes('refreshToken=');
+    if (!document.cookie.includes('refreshToken=')) {
+      this.userSubject.next(null);
+      return;
+    }
 
-  if (!hasRefreshToken) {
-    this.userSubject.next(null);
-    return;
+    this.auth.me().pipe(
+      map(r => r.user),
+      catchError(() => of(null)),
+      tap(user => this.userSubject.next(user))
+    ).subscribe();
   }
-
-  this.authService.me().pipe(
-    catchError(() => of({ user: null })),
-    tap(result => this.userSubject.next(result.user ?? null))
-  ).subscribe();
-}
-
 
   login(email: string, password: string) {
-    return this.authService.login(email, password).pipe(
-      tap(result => {
-        this.userSubject.next(result.user);
-        this.initSession(); 
-      })
+    return this.auth.login(email, password).pipe(
+      tap(r => this.userSubject.next(r.user))
     );
   }
 
-  register(data: { firstName: string; lastName: string; email: string; password: string }) {
-    return this.authService.register(data).pipe(
-      tap(result => this.userSubject.next(result.user))
+  register(data: RegisterDto) {
+    return this.auth.register(data).pipe(
+      tap(r => this.userSubject.next(r.user))
     );
   }
 
-  logout() {
-    this.authService.logout().subscribe(() => this.clearSession());
-  }
-
-  private clearSession() {
-    this.userSubject.next(null);
+  logout(): void {
+    this.auth.logout().subscribe(() => this.userSubject.next(null));
   }
 }

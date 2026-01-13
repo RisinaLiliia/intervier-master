@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatTabsModule, MatTabChangeEvent } from '@angular/material/tabs';
-import { Category } from '../../models/category.model';
+import { Category } from '../../core/categories/category.model';
 import { CapitalizePipe } from '../../pipes/capitalize.pipe';
 import { CommonModule } from '@angular/common';
 

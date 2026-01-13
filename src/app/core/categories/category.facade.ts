@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { tap, finalize } from 'rxjs/operators';
 
-import { CategoryService } from '../services/categories.service';
-import { Category } from '../models/category.model';
+import { CategoryService } from './categories.service';
+import { Category } from './category.model';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryFacade {

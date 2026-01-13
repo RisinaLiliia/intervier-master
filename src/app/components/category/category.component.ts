@@ -8,8 +8,8 @@ import { switchMap, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 
-import { QuestionItem } from '../../models/question.model';
-import { CategoryService } from '../../services/categories.service';
+import { QuestionItem } from '../../core/questions/question.model';
+import { QuestionsFacade } from '../../core/questions/questions.facade';
 import { AuthFacade } from '../../core/auth/auth.facade';
 import { AuthRequiredModalComponent } from '../auth-required-modal/auth-required.modal';
 import { EditAnswerModalComponent } from '../edit-answer-modal/edit-answer-modal.component';
@@ -25,7 +25,7 @@ import { TruncatePipe } from '../../pipes/truncate.pipe';
 export class CategoryComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
-  private readonly categoryService = inject(CategoryService);
+  private readonly questionsFacade = inject(QuestionsFacade);
   private readonly auth = inject(AuthFacade);
   private readonly dialog = inject(MatDialog);
 
@@ -59,10 +59,13 @@ export class CategoryComponent {
     });
   }
 
-  private loadQuestions() {
-    if (!this.currentCategoryId) return [];
-    return this.categoryService.getQuestions(this.currentCategoryId, this.currentUserId);
-  }
+ private loadQuestions() {
+  if (!this.currentCategoryId) return [];
+  return this.questionsFacade.load(
+    this.currentCategoryId,
+    this.currentUserId
+  );
+}
 
   async openEditDialog(question: QuestionItem): Promise<void> {
     const isAuth = await firstValueFrom(this.auth.isAuth$.pipe(takeUntilDestroyed(this.destroyRef)));
