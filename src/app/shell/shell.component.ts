@@ -37,9 +37,7 @@ export class ShellComponent implements OnInit {
 
   ngOnInit(): void {
     const categories = this.route.snapshot.data['categories'] as CategoryItem[];
-
     if (!categories?.length) return;
-
     this.categories = categories;
 
     if (this.router.url === '/' || this.router.url === '/categories') {
@@ -47,3 +45,4 @@ export class ShellComponent implements OnInit {
     }
   }
 }
+
