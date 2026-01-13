@@ -1,41 +1,32 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs';
 import { environment } from '../environments/environment';
-import { Observable } from 'rxjs';
 import { QuestionItem } from '../models/question.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionsService {
-  private api = environment.apiUrl + '/answers';
+  private readonly api = `${environment.apiUrl}/questions`;
 
   constructor(private http: HttpClient) {}
 
-  getByCategory(categoryId: string): Observable<QuestionItem[]> {
-    return this.http.get<QuestionItem[]>(
-      `${environment.apiUrl}/questions?categoryId=${categoryId}`
-    );
-  }
-
-  createAnswer(questionId: string, answer: string) {
-    return this.http.post(
-      `${this.api}/${questionId}`,
-      { answer },
-      { withCredentials: true }
-    );
-  }
-
-  updateAnswer(questionId: string, answerId: string, answer: string) {
-    return this.http.patch(
-      `${this.api}/${questionId}/${answerId}`,
-      { answer },
-      { withCredentials: true }
-    );
-  }
-
-  deleteAnswer(questionId: string, answerId: string) {
-    return this.http.delete(
-      `${this.api}/${questionId}/${answerId}`,
-      { withCredentials: true }
-    );
-  }
+  getQuestions(categoryId: string, userId?: string) {
+  return this.http.get<QuestionItem[]>(`${this.api}?categoryId=${categoryId}`, { withCredentials: true }).pipe(
+    map(questions => questions.map(q => {
+      const userAnswer = q.answers.find(a => a.userId === userId);
+      const defaultAnswer = q.answers.find(a => !a.userId);
+      return { ...q, displayedAnswer: userAnswer ?? defaultAnswer! };
+    }))
+  );
 }
+
+upsertAnswer(questionId: string, answer: string) {
+  return this.http.post<{ _id: string }>(`${this.api}/${questionId}`, { answer }, { withCredentials: true });
+}
+
+deleteAnswer(questionId: string) {
+  return this.http.delete(`${this.api}/${questionId}`, { withCredentials: true });
+}
+
+}
+

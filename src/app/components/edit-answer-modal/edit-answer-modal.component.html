@@ -2,7 +2,7 @@
 
 <mat-dialog-content class="edit-answer-content">
   <div class="current-answer">
-    <p>{{ form.value.answer || 'No answer yet.' }}</p>
+    <p>{{ currentAnswerText || 'No answer yet.' }}</p>
   </div>
 
   <form [formGroup]="form">
@@ -22,11 +22,13 @@
     Generate AI
   </button>
 
-  <button mat-raised-button color="primary" (click)="save()">
+  <button mat-raised-button color="primary" (click)="save()"
+    [disabled]="form.invalid || isSaving">
     Save
   </button>
 
-  <button mat-button color="warn" (click)="deleteAnswer()">
+  <button mat-button color="warn" (click)="deleteAnswer()"
+    [disabled]="!hasUserAnswer">
     Delete
   </button>
 

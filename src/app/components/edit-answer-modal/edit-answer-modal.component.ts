@@ -1,120 +1,101 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, DestroyRef, inject } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogRef,
-  MatDialogModule
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
-import { HttpErrorResponse } from '@angular/common/http';
+import { take } from 'rxjs';
 
 import { QuestionsService } from '../../services/questions.service';
 import { OpenAiIntegrationService } from '../../services/open-ai-integration.service';
+import { AuthFacade } from '../../core/auth/auth.facade';
 import { AuthRequiredModalComponent } from '../auth-required-modal/auth-required.modal';
 
 export interface EditAnswerDialogData {
   questionId: string;
   question: string;
-  answer?: string;
-  answerId?: string;
+  answer: string;
+  hasUserAnswer: boolean;
+  defaultAnswer?: string;
 }
-
 
 @Component({
   selector: 'app-edit-answer-modal',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatInputModule
-  ],
+  imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, MatInputModule],
   templateUrl: './edit-answer-modal.component.html',
   styleUrls: ['./edit-answer-modal.component.scss']
 })
 export class EditAnswerModalComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly questionsService = inject(QuestionsService);
+  private readonly auth = inject(AuthFacade);
+  private readonly dialog = inject(MatDialog);
+  private readonly dialogRef = inject(MatDialogRef<EditAnswerModalComponent>);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly form = this.fb.nonNullable.group({
     answer: ['', Validators.required]
   });
 
-  isGenerating = false;
+  currentAnswerText: string | null;
+  hasUserAnswer: boolean;
   isSaving = false;
+  isGenerating = false;
+  public onChange?: (result: { answer?: string; answerId?: string; deleted?: boolean }) => void;
 
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public readonly data: EditAnswerDialogData,
-    private readonly fb: FormBuilder,
-    private readonly questionsService: QuestionsService,
-    private readonly aiService: OpenAiIntegrationService,
-    private readonly dialogRef: MatDialogRef<EditAnswerModalComponent>,
-    private readonly dialog: MatDialog
-  ) {
-    if (data.answer) {
-      this.form.patchValue({ answer: data.answer });
-    }
+  constructor(@Inject(MAT_DIALOG_DATA) public readonly data: EditAnswerDialogData,
+              private readonly aiService: OpenAiIntegrationService) {
+    this.currentAnswerText = data.answer || data.defaultAnswer || null;
+    this.hasUserAnswer = data.hasUserAnswer;
   }
 
   generateAnswer(): void {
     this.isGenerating = true;
     this.aiService.generateAnswer(this.data.question).subscribe({
-      next: (answer) => {
-        this.form.patchValue({ answer });
+      next: (answer: string) => {
+        this.form.setValue({ answer });
         this.isGenerating = false;
       },
-      error: () => (this.isGenerating = false)
+      error: () => this.isGenerating = false
     });
   }
 
   save(): void {
     if (this.form.invalid) return;
-
-    this.isSaving = true;
     const { answer } = this.form.getRawValue();
 
-    const request$ = this.data.answerId
-      ? this.questionsService.updateAnswer(
-        this.data.questionId,
-        this.data.answerId,
-        answer
-      )
-      : this.questionsService.createAnswer(
-        this.data.questionId,
-        answer
-      );
+    this.auth.user$.pipe(take(1)).subscribe(user => {
+  if (!user) {
+    this.dialog.open(AuthRequiredModalComponent);
+    return;
+  }
 
-    request$.subscribe({
-      next: () => {
-        this.isSaving = false;
-        this.dialogRef.close({ answer });
-      },
-      error: (err: HttpErrorResponse) => {
-        this.isSaving = false;
-        this.handleAuthError(err);
-      }
-    });
+  this.isSaving = true;
+  this.questionsService.upsertAnswer(this.data.questionId, answer).subscribe({
+    next: res => {
+      this.currentAnswerText = answer;
+      this.hasUserAnswer = true;
+      this.form.reset({ answer: '' });
+      this.onChange?.({ answer, answerId: res._id });
+    },
+    error: err => this.handleAuthError(err),
+    complete: () => this.isSaving = false
+  });
+});
+
+
   }
 
   deleteAnswer(): void {
-    if (!this.data.answerId) {
-      console.warn('No user answer to delete');
-      return;
-    }
-
-    if (!this.data.questionId) {
-      console.error('Cannot delete answer: questionId is missing');
-      return;
-    }
-
-    this.questionsService.deleteAnswer(this.data.questionId, this.data.answerId).subscribe({
+    if (!this.hasUserAnswer) return;
+    this.questionsService.deleteAnswer(this.data.questionId).subscribe({
       next: () => {
-        this.data.answer = undefined;
-        this.data.answerId = undefined;
-
-        this.dialogRef.close({ answer: undefined });
+        this.currentAnswerText = this.data.defaultAnswer || null;
+        this.hasUserAnswer = false;
+        this.form.reset({ answer: '' });
+        this.onChange?.({ deleted: true });
       },
-      error: (err: HttpErrorResponse) => this.handleAuthError(err)
+      error: (err: any) => this.handleAuthError(err)
     });
   }
 
@@ -122,11 +103,11 @@ export class EditAnswerModalComponent {
     this.dialogRef.close(false);
   }
 
-  private handleAuthError(err: HttpErrorResponse): void {
-    if (err.status === 401) {
+  private handleAuthError(err: any): void {
+    this.isSaving = false;
+    if (err?.status === 401) {
       this.dialogRef.close();
       this.dialog.open(AuthRequiredModalComponent);
     }
   }
-
 }

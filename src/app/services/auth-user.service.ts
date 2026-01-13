@@ -1,12 +1,15 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
+import { User } from '../models/user.model';
+import { Observable } from 'rxjs';
 
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
+export interface MeResponse {
+  user: User | null;
+}
+
+export interface AuthResponse {
+  user: User;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -15,35 +18,44 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(email: string, password: string) {
-    return this.http.post<{ user: User; accessToken: string }>(
+  login(email: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
       `${this.api}/login`,
       { email, password },
-      { withCredentials: true }
+      { withCredentials: true } 
     );
   }
 
-  register(data: { firstName: string; lastName: string; email: string; password: string }) {
-    return this.http.post<{ user: User; accessToken: string }>(
+  register(data: { firstName: string; lastName: string; email: string; password: string }): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
       `${this.api}/register`,
       data,
       { withCredentials: true }
     );
   }
 
-  refresh() {
-    return this.http.post<{ accessToken: string }>(
-      `${this.api}/refresh`,
+  me(): Observable<MeResponse> {
+    return this.http.get<MeResponse>(
+      `${this.api}/me`,
+      { withCredentials: true }
+    );
+  }
+
+  logout(): Observable<void> {
+    return this.http.post<void>(
+      `${this.api}/logout`,
       {},
       { withCredentials: true }
     );
   }
 
-  me() {
-    return this.http.get<User>(`${this.api}/me`, { withCredentials: true });
-  }
-
-  logout() {
-    return this.http.post(`${this.api}/logout`, {}, { withCredentials: true });
+  refresh(): Observable<void> {
+    return this.http.post<void>(
+      `${this.api}/refresh`,
+      {},
+      { withCredentials: true }
+    );
   }
 }
+
+

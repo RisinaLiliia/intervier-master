@@ -1,58 +1,39 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, of, tap } from 'rxjs';
-import { AuthService, User } from '../../services/auth-user.service';
+import { BehaviorSubject, catchError, of, tap, map } from 'rxjs';
+import { AuthService } from '../../services/auth-user.service';
+import { User } from '../../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthFacade {
   private userSubject = new BehaviorSubject<User | null>(null);
   readonly user$ = this.userSubject.asObservable();
-  readonly isAuth$ = this.user$.pipe(tap(user => !!user));
+  readonly isAuth$ = this.user$.pipe(map(user => !!user));
 
-  private accessToken: string | null = null;
-  private hasTriedRefresh = false; 
+  private hasTriedInit = false;
 
   constructor(private authService: AuthService) {}
 
-  initSession() {
-    if (this.hasTriedRefresh) return;
-    this.hasTriedRefresh = true;
-
-    const token = this.getRefreshTokenCookie();
-    if (!token) return;
-
-    this.authService.refresh().pipe(
-      catchError(() => of(null))
-    ).subscribe(result => {
-      if (result?.accessToken) {
-        this.accessToken = result.accessToken;
-        this.loadUser();
-      } else {
-        this.clearSession();
-      }
-    });
-  }
-
-  private loadUser() {
+  initSession(): void {
+    if (this.hasTriedInit) return;
+    this.hasTriedInit = true;
     this.authService.me().pipe(
-      catchError(() => of(null))
-    ).subscribe(user => this.userSubject.next(user));
+      catchError(() => of({ user: null })),
+      tap(result => this.userSubject.next(result.user ?? null))
+    ).subscribe();
   }
 
   login(email: string, password: string) {
     return this.authService.login(email, password).pipe(
       tap(result => {
-        this.accessToken = result.accessToken;
         this.userSubject.next(result.user);
+        this.initSession(); 
       })
     );
   }
 
   register(data: { firstName: string; lastName: string; email: string; password: string }) {
     return this.authService.register(data).pipe(
-      tap(result => {
-        this.accessToken = result.accessToken;
-        this.userSubject.next(result.user);
-      })
+      tap(result => this.userSubject.next(result.user))
     );
   }
 
@@ -61,18 +42,6 @@ export class AuthFacade {
   }
 
   private clearSession() {
-    this.accessToken = null;
     this.userSubject.next(null);
   }
-
-  getToken() {
-    return this.accessToken;
-  }
-
-  private getRefreshTokenCookie(): string | null {
-    const match = document.cookie.match(/refreshToken=([^;]+)/);
-    return match ? match[1] : null;
-  }
 }
-
-

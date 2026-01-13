@@ -6,6 +6,12 @@ export interface Answer {
   text: string;
   updatedAt: string;
 }
+
+export interface AnswerItem {
+  _id?: string;     
+  userId?: string;   
+  text: string;      
+}
 export interface EditAnswerDialogData {
   _id: string;              
   question: string;
