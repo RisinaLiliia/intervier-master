@@ -13,14 +13,23 @@ export class AuthFacade {
 
   constructor(private authService: AuthService) {}
 
-  initSession(): void {
-    if (this.hasTriedInit) return;
-    this.hasTriedInit = true;
-    this.authService.me().pipe(
-      catchError(() => of({ user: null })),
-      tap(result => this.userSubject.next(result.user ?? null))
-    ).subscribe();
+initSession(): void {
+  if (this.hasTriedInit) return;
+  this.hasTriedInit = true;
+
+  const hasRefreshToken = document.cookie.includes('refreshToken=');
+
+  if (!hasRefreshToken) {
+    this.userSubject.next(null);
+    return;
   }
+
+  this.authService.me().pipe(
+    catchError(() => of({ user: null })),
+    tap(result => this.userSubject.next(result.user ?? null))
+  ).subscribe();
+}
+
 
   login(email: string, password: string) {
     return this.authService.login(email, password).pipe(
