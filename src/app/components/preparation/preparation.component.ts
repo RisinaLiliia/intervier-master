@@ -7,7 +7,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { QuestionItem } from '../../core/questions/question.model';
-import { CategoryService } from '../../core/categories/categories.service';
 import { AuthFacade } from '../../core/auth/auth.facade';
 import { AuthRequiredModalComponent } from '../auth-required-modal/auth-required.modal';
 import { EditAnswerModalComponent } from '../edit-answer-modal/edit-answer-modal.component';
