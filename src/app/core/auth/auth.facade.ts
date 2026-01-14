@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, of, tap, map } from 'rxjs';
 import { AuthService } from './auth.service';
+import { CsrfService } from '../http/csrf.service';
 import { User } from './auth.models';
 
 export interface RegisterDto {
@@ -12,13 +13,12 @@ export interface RegisterDto {
 @Injectable({ providedIn: 'root' })
 export class AuthFacade {
   private readonly userSubject = new BehaviorSubject<User | null>(null);
-
   readonly user$ = this.userSubject.asObservable();
   readonly isAuth$ = this.user$.pipe(map(Boolean));
 
   private initialized = false;
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, private csrf: CsrfService) {}
 
   initSession(): void {
     if (this.initialized) return;
@@ -32,19 +32,28 @@ export class AuthFacade {
     this.auth.me().pipe(
       map(r => r.user),
       catchError(() => of(null)),
-      tap(user => this.userSubject.next(user))
+      tap(user => {
+        this.userSubject.next(user);
+        if (user) this.csrf.fetchCsrfToken(); 
+      })
     ).subscribe();
   }
 
   login(email: string, password: string) {
     return this.auth.login(email, password).pipe(
-      tap(r => this.userSubject.next(r.user))
+      tap(r => {
+        this.userSubject.next(r.user);
+        this.csrf.fetchCsrfToken();
+      })
     );
   }
 
   register(data: RegisterDto) {
     return this.auth.register(data).pipe(
-      tap(r => this.userSubject.next(r.user))
+      tap(r => {
+        this.userSubject.next(r.user);
+        this.csrf.fetchCsrfToken();
+      })
     );
   }
 
