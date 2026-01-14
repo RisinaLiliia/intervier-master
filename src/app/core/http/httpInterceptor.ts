@@ -1,15 +1,15 @@
 import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { CsrfService } from './csrf.service';
 
 export const CsrfInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = document.cookie
-    .split('; ')
-    .find(v => v.startsWith('csrfToken='))
-    ?.split('=')[1];
+  const csrfService = inject(CsrfService);
+  const token = csrfService.getToken();
 
   if (token && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     req = req.clone({
-      setHeaders: { 'X-CSRF-Token': token },
-      withCredentials: true, 
+      setHeaders: { 'x-csrf-token': token },
+      withCredentials: true,
     });
   } else {
     req = req.clone({ withCredentials: true });
@@ -17,6 +17,3 @@ export const CsrfInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req);
 };
-
-
-
